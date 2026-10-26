@@ -1,3 +1,4 @@
+Before running any `npm` commands, check for `.nvmrc` and run `nvm use` to ensure the terminal is using the Node.js version specified in `.nvmrc`.
 <!-- BEGIN:nextjs-agent-rules -->
 
 ## This is NOT the Next.js you know
