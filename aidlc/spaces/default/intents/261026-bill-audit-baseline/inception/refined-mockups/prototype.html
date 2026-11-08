@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project RS — clickable prototype (made-up data)</title>
+<style>
+:root{
+  --background:#ffffff;--page:#f8fafc;--foreground:#1f2937;--muted:#4b5563;
+  --primary:#0f766e;--primary-fg:#ffffff;--border-input:#6b7280;--ring:#1e3a8a;
+  --likely:#92400e;--likely-tint:#fffbeb;--likely-border:#b45309;
+  --worth:#1e40af;--worth-tint:#eff6ff;--worth-border:#2563eb;
+  --explained:#374151;--explained-tint:#f3f4f6;--explained-border:#6b7280;
+  --destructive:#b91c1c;--destructive-tint:#fef2f2;
+}
+*{box-sizing:border-box}
+html{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Helvetica Neue",Arial,sans-serif}
+body{margin:0;background:var(--page);color:var(--foreground);font-size:18px;line-height:1.6}
+@media (min-width:1024px){body{font-size:17px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+a{color:var(--primary)}
+:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.skip{position:absolute;left:-9999px}.skip:focus{left:16px;top:8px;background:#fff;padding:8px;z-index:50}
+.proto{background:#111827;color:#fff;font-size:15px;padding:6px 16px;text-align:center}
+header.top{background:#fff;border-bottom:1px solid #e5e7eb;padding:12px 16px}
+.toprow{display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:0 auto;gap:8px}
+.brand{font-weight:600}
+.steps{list-style:none;display:flex;gap:16px;padding:0;margin:8px auto 0;max-width:1200px;font-size:15px;color:var(--muted)}
+.steps li[aria-current="step"]{color:var(--primary);font-weight:600}
+main{max-width:640px;margin:0 auto;padding:16px}
+main.wide{max-width:1200px}
+@media (min-width:1024px){main{padding:32px}}
+footer{max-width:1200px;margin:24px auto;padding:16px;font-size:15px;color:var(--muted);border-top:1px solid #e5e7eb}
+h1{font-size:28px;line-height:1.25;margin:8px 0 16px}
+h2{font-size:22px;line-height:1.3;margin:24px 0 8px}
+h3{font-size:19px;margin:16px 0 8px}
+@media (min-width:1024px){h1{font-size:32px}h2{font-size:24px}}
+.small{font-size:15px;color:var(--muted)}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:12px 0}
+button,.btn{font:inherit;min-height:44px;min-width:44px;padding:8px 16px;border-radius:8px;border:1px solid var(--border-input);background:#fff;color:var(--foreground);cursor:pointer}
+.primary{background:var(--primary);color:var(--primary-fg);border-color:var(--primary);width:100%;min-height:48px;font-weight:600}
+@media (min-width:1024px){.primary{width:auto}}
+.quiet{border-color:transparent;background:transparent;color:var(--primary);text-decoration:underline}
+.danger{background:var(--destructive);color:#fff;border-color:var(--destructive)}
+button[disabled]{opacity:.55;cursor:not-allowed}
+fieldset{border:0;padding:0;margin:16px 0}
+legend{font-weight:600;margin-bottom:4px}
+.opt{display:flex;align-items:center;gap:12px;min-height:48px}
+.opt input{width:22px;height:22px;accent-color:var(--primary)}
+.err{color:var(--destructive);font-size:15px;margin:4px 0}
+.hide{display:none!important}
+table{border-collapse:collapse;width:100%}
+td,th{padding:6px 4px;text-align:left;border-bottom:1px solid #eef0f3}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:15px;font-weight:600;border-radius:999px;padding:2px 10px}
+.likely{color:var(--likely);background:var(--likely-tint)}
+.worth{color:var(--worth);background:var(--worth-tint)}
+.explained{color:var(--explained);background:var(--explained-tint)}
+.fcard{display:block;width:100%;text-align:left;border:1px solid #e5e7eb;border-left-width:6px;border-radius:8px;background:#fff;padding:12px;margin:8px 0}
+.fcard.l{border-left-color:var(--likely-border)}.fcard.w{border-left-color:var(--worth-border)}.fcard.e{border-left-color:var(--explained-border)}
+.fcard[aria-current="true"]{background:#f0fdfa}
+.layout{display:block}
+@media (min-width:1024px){.layout{display:grid;grid-template-columns:400px 1fr;gap:24px;align-items:start}#detailPanel{position:sticky;top:16px}}
+.bar{display:flex;height:14px;border-radius:7px;overflow:hidden;margin:8px 0}
+.bar span:nth-child(1){background:var(--likely-border)}.bar span:nth-child(2){background:var(--worth-border)}.bar span:nth-child(3){background:#9ca3af}.bar span:nth-child(4){background:#d1d5db}
+.notice{background:var(--worth-tint);border:1px solid var(--worth-border);border-radius:8px;padding:12px;margin:12px 0}
+.sysmsg{background:var(--destructive-tint);border:1px solid var(--destructive);border-radius:8px;padding:12px;margin:12px 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+dialog{border:0;border-radius:12px;padding:24px;max-width:480px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+dialog::backdrop{background:rgba(17,24,39,.5)}
+dialog.full{max-width:none;width:100vw;height:100vh;margin:0;border-radius:0;font-size:24px}
+textarea{font:inherit;width:100%;min-height:180px;padding:8px;border:1px solid var(--border-input);border-radius:8px}
+input[type=text],select{font:inherit;min-height:44px;padding:6px 8px;border:1px solid var(--border-input);border-radius:8px;width:100%}
+.demo{position:fixed;right:12px;bottom:12px;background:#111827;color:#fff;border-radius:8px;padding:8px;font-size:15px;z-index:40}
+.demo button{background:#374151;color:#fff;border-color:#6b7280;min-height:36px;padding:4px 10px;margin:2px}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="proto" role="note">Prototype for review. Every bill, name and amount here is made up.</div>
+<header class="top">
+  <div class="toprow"><span class="brand">Project RS</span>
+    <button class="quiet hide" id="discardBtn" type="button">Discard everything</button></div>
+  <ol class="steps hide" id="steps" aria-label="Progress">
+    <li data-s="upload">Upload</li><li data-s="review">Review</li><li data-s="report">Report</li>
+  </ol>
+</header>
+
+<main id="main" tabindex="-1">
+
+<!-- M1 -->
+<section data-screen="m1">
+  <h1>Is your hospital bill right?</h1>
+  <p>We read your bill line by line and show what may be worth asking the hospital about, with the evidence.</p>
+  <ul><li>Free. No sign-up.</li><li>Your files are deleted after we read them.</li><li>A few minutes of your time, plus a short wait while we read the bill (usually under 15 minutes).</li></ul>
+  <h2>What this check is not</h2>
+  <ul><li>Not legal, medical or financial advice. It is information only.</li><li>It does not promise any outcome.</li><li>It does not check what insurance will pay.</li><li>You decide what to say to the hospital.</li></ul>
+  <h2>Your privacy, in short</h2>
+  <ul><li><b>What we collect:</b> the documents you upload, for this check only.</li><li><b>Why:</b> to read the bill and find things worth asking about.</li><li><b>How long:</b> files are deleted once read; everything else when you leave, unless you choose to share at the end.</li><li><b>Who sees it:</b> only the services we use to read your bill and run this site, under contract. They may not keep your files or use them to train their systems. We never send anything to the hospital or an insurer.</li><li><b>Your rights:</b> you can stop and delete everything at any time.</li></ul>
+  <button type="button" class="quiet" aria-expanded="false" aria-controls="moreNotice" id="moreBtn">More detail ▾</button>
+  <div id="moreNotice" class="card hide"><p class="small">Full privacy notice (placeholder text for the prototype). The founder or counsel approves the final wording before launch.</p></div>
+  <p><button type="button" class="primary" data-go="m2">Start my check</button></p>
+  <p><button type="button" class="quiet" data-go="left">Leave</button></p>
+</section>
+
+<section data-screen="left" class="hide">
+  <h1>You can close this page</h1><p>Nothing was uploaded.</p>
+  <button type="button" data-go="m1">Back to start</button>
+</section>
+
+<!-- M2 -->
+<section data-screen="m2" class="hide">
+  <h1>Before you upload</h1>
+  <form id="consentForm" novalidate>
+    <fieldset id="fsWho" aria-describedby="errWho"><legend>Whose bill is this?</legend>
+      <div id="whoOpts"></div><p class="err hide" id="errWho">Please choose whose bill this is.</p></fieldset>
+    <fieldset id="fsMinor" class="hide" aria-describedby="errMinor"><legend>Is the patient under 18?</legend>
+      <label class="opt"><input type="radio" name="minor" value="no"> No</label>
+      <label class="opt"><input type="radio" name="minor" value="yes"> Yes</label>
+      <p class="err hide" id="errMinor">Please answer this question.</p></fieldset>
+    <div id="declGuardian" class="hide"><label class="opt"><input type="checkbox" id="cbGuardian"> I am the patient's parent or legal guardian.</label><p class="err hide" id="errGuardian">Please tick this box to continue.</p></div>
+    <fieldset id="fsAdult" class="hide" aria-describedby="errAdult"><legend>About the patient</legend>
+      <label class="opt"><input type="radio" name="adult" value="agreed"> The patient has agreed to me checking this bill</label>
+      <label class="opt"><input type="radio" name="adult" value="cannot"> The patient cannot decide right now, and I am acting for them</label>
+      <label class="opt"><input type="radio" name="adult" value="passed"> <span id="passedLabel">My family member has passed away</span></label>
+      <p class="small hide" id="sorry">We're sorry for your loss. You only need to tick the box below; no documents are needed.</p>
+      <p class="err hide" id="errAdult">Please choose one.</p></fieldset>
+    <label class="opt"><input type="checkbox" id="cbAllowed"> I am allowed to share this patient's documents.</label>
+    <p class="err hide" id="errAllowed">Please tick this box to continue.</p>
+    <label class="opt"><input type="checkbox" id="cbConsent"> I agree that you may read these documents for this check only.</label>
+    <p class="err hide" id="errConsent">We can only check the bill if you agree that we may read it.</p>
+    <p><button type="submit" class="primary">Continue</button></p>
+  </form>
+</section>
+
+<!-- M3 -->
+<section data-screen="m3" class="hide">
+  <h1>Add your documents</h1>
+  <fieldset><legend>When are you checking?</legend>
+    <label class="opt"><input type="radio" name="when" value="in"> Still in hospital</label>
+    <label class="opt"><input type="radio" name="when" value="dis"> At discharge</label>
+    <label class="opt"><input type="radio" name="when" value="paid"> Already paid</label>
+  </fieldset>
+  <div class="row"><button type="button" id="photoBtn" disabled aria-describedby="whenReason">Take a photo</button>
+    <button type="button" id="filesBtn" disabled aria-describedby="whenReason">Choose files</button></div>
+  <p class="small" id="whenReason">Please answer "When are you checking?" first.</p>
+  <p class="small">Got the bill on WhatsApp? Save it to your phone first, then choose it.</p>
+  <h2>Your documents</h2>
+  <ul id="fileList" aria-live="polite"><li class="small">Start with the hospital bill.</li></ul>
+  <h2>What we still need</h2>
+  <ul id="checklist"></ul>
+  <p class="small">Files are deleted once we've read them.</p>
+  <p><button type="button" class="primary" id="checkBtn" disabled>Check my bill</button></p>
+</section>
+
+<!-- M4 -->
+<section data-screen="m4" class="hide">
+  <h1 id="m4h">Reading your bill</h1>
+  <div role="status" aria-live="polite" id="mile">
+    <p id="ms1">○ Reading pages</p><p id="ms2">○ Running checks</p><p id="ms3">○ Report ready</p>
+    <p class="small" id="eta">About 3 minutes left. You can stay on this page.</p></div>
+  <div id="firstLook" class="card hide">
+    <h2>First look — may change after you confirm a few details</h2>
+    <table><caption class="small" style="text-align:left">Bill totals</caption>
+      <tr><td>Total billed</td><td class="num">₹2,48,600</td></tr><tr><td>Advances paid</td><td class="num">₹1,50,000</td></tr><tr><td>Balance due</td><td class="num">₹98,600</td></tr></table>
+    <h3>Largest parts of the bill</h3>
+    <table><tr><td>Room charges</td><td class="num">₹62,000</td></tr><tr><td>Pharmacy</td><td class="num">₹48,300</td></tr><tr><td>Consumables</td><td class="num">₹31,900</td></tr></table>
+    <h3>3 things worth a look</h3>
+    <ul><li>Room days</li><li>A scan that appears twice</li><li>A drug price</li></ul>
+    <button type="button" class="primary" data-go="m5">Confirm a few details</button>
+  </div>
+</section>
+
+<!-- M5 -->
+<section data-screen="m5" class="hide">
+  <h1>Please check a few things</h1>
+  <h2>About this stay</h2>
+  <label>Hospital <input type="text" value="City Care Hospital"></label>
+  <label>City <input type="text" value="Pune"></label>
+  <label>Admitted (DD/MM/YYYY) <input type="text" value="03/10/2026"></label>
+  <label>Discharged (DD/MM/YYYY) <input type="text" value="09/10/2026"></label>
+  <label>Insurer <input type="text" placeholder="Please fill in"></label>
+  <h2>We weren't sure about 1 line</h2>
+  <div class="card"><p>Pharmacy bill, page 4, line 12 — "Inj. ....rone 1g"</p>
+    <label>Quantity <input type="text" value="6"></label><label>Amount <input type="text" value="1,840"></label>
+    <button type="button">This is right</button></div>
+  <h2>Could not be read (1)</h2>
+  <div class="card"><p>Hospital bill, page 5, line 3. This line isn't in English, so we left it out of the checks.</p>
+    <div class="row"><button type="button">Type it in</button><button type="button">Leave it out</button></div></div>
+  <p><button type="button" class="primary" data-go="m6">Confirm and see my report</button></p>
+</section>
+
+<!-- M6 -->
+<section data-screen="m6" class="hide">
+  <h1>Your bill check</h1>
+  <p>City Care Hospital · Bill 4471 · ₹2,48,600 billed</p>
+  <div id="changeNotice" class="notice hide" role="status"></div>
+  <div class="card"><button type="button" class="primary" id="saveBtn">Save or share</button>
+    <p class="small">Save a copy now. We can't send it to you later.</p></div>
+  <h2>Top 3 things to do now</h2>
+  <ol><li>Room charged for an extra day — Ask the hospital — ₹4,000</li><li>The same CT scan listed twice — Ask the hospital — ₹2,600</li><li>A drug charged above its MRP — Ask the hospital — ₹820</li></ol>
+  <h2>Bill Breakdown</h2>
+  <div class="bar" aria-hidden="true"><span style="width:3%"></span><span style="width:5%"></span><span style="width:89%"></span><span style="width:3%"></span></div>
+  <table><caption class="small" style="text-align:left">Bill Breakdown</caption>
+    <tr><th>Part</th><th class="num">Items</th><th class="num">Amount</th></tr>
+    <tr><td><span class="pill likely">▲ Likely error</span></td><td class="num">3</td><td class="num">₹7,420</td></tr>
+    <tr><td><span class="pill worth">? Worth asking</span></td><td class="num">4</td><td class="num">₹12,300</td></tr>
+    <tr><td><span class="pill explained">✓ Explained</span></td><td class="num">—</td><td class="num">₹2,21,180</td></tr>
+    <tr><td>○ Could not be assessed</td><td class="num">—</td><td class="num">₹7,700</td></tr></table>
+  <nav aria-label="On this page" class="small">Jump to: <a href="#findings">Findings</a> · <a href="#desk">Billing desk summary</a> · <a href="#letters">Letters</a> · <a href="#next">Next steps</a></nav>
+  <h2 id="findings" tabindex="-1">Findings</h2>
+  <div class="row" role="group" aria-label="Show findings">
+    <button type="button" aria-pressed="true" data-f="all">All</button><button type="button" aria-pressed="false" data-f="l">Likely error</button><button type="button" aria-pressed="false" data-f="w">Worth asking</button><button type="button" aria-pressed="false" data-f="e">Explained</button></div>
+  <div class="layout">
+    <div><div id="findingList"></div>
+      <button type="button" aria-expanded="false" aria-controls="lowList" id="lowBtn">Other things you may ask about (2) ▾</button>
+      <div id="lowList" class="hide"></div>
+      <h3>Checks we couldn't run</h3>
+      <p class="small"><b>Still being tested:</b> Implant price cap</p>
+      <p class="small"><b>Needs a document you can add:</b> Package price — needs the package letter <button type="button" id="addDocBtn">Add a document</button></p>
+    </div>
+    <div id="detailPanel" class="card" aria-live="polite"></div>
+  </div>
+  <h2 id="desk" tabindex="-1">Billing Desk Summary</h2>
+  <article class="card" id="deskSummary"></article>
+  <div class="row"><button type="button" id="fullBtn">Show full screen</button></div>
+  <h2 id="letters" tabindex="-1">Letters you can edit and send</h2>
+  <div id="letterList"></div>
+  <p><button type="button" id="linesBtn">Fix a line</button></p>
+  <h2 id="next" tabindex="-1">If the billing desk can't help</h2>
+  <ol><li>Billing desk — today</li><li>Patient relations — within 7 days</li><li>Medical superintendent or grievance officer — within 15 days</li><li>State health authority, where applicable</li><li>NPPA, for drug and device prices</li><li>Consumer Commission</li></ol>
+  <p>You can raise these even after the bill is paid. You don't need to delay payment or discharge.</p>
+  <p class="small">We never contact the hospital or anyone else for you. Deadlines shown are illustrative; times are IST.</p>
+  <fieldset><legend>What do you plan to do next?</legend>
+    <label class="opt"><input type="radio" name="plan"> Ask the billing desk today</label>
+    <label class="opt"><input type="radio" name="plan"> Ask later, after discharge</label>
+    <label class="opt"><input type="radio" name="plan"> Pay and raise it afterwards</label>
+    <label class="opt"><input type="radio" name="plan"> Not sure yet</label></fieldset>
+  <p><button type="button" class="primary" data-go="m10">I'm done</button></p>
+</section>
+
+<!-- M10 -->
+<section data-screen="m6a" class="hide">
+  <p><button type="button" class="quiet" data-go="m6">&lt; Back to your report</button></p>
+  <h1>Your bill lines</h1>
+  <h2>Hospital bill · page 2</h2>
+  <div class="card"><p><b>Line 4</b><br>As read: "ROOM CHG - SEMI PVT"<br>Means: Room charge, semi-private room<br>Qty 7 · Rate ₹4,000 · ₹28,000</p>
+    <button type="button" id="fixBtn" aria-expanded="false" aria-controls="fixForm">Fix this line</button>
+    <form id="fixForm" class="hide" novalidate><h3>Fix line 4</h3><label>Quantity <input type="text" id="fixQty" value="7" inputmode="numeric" aria-describedby="fixErr"></label><p class="err hide" id="fixErr">Please enter a number, for example 6.</p>
+      <div class="row"><button type="submit" class="primary">Save change</button><button type="button" id="fixCancel">Cancel</button></div></form></div>
+</section>
+
+<section data-screen="m10" class="hide">
+  <h1>Before you go</h1>
+  <p><button type="button" class="primary" id="save2">Save or share your report</button></p>
+  <p class="small">We can't send it to you later. Nothing is saved to an account.</p>
+  <h2>Help improve bill checks?</h2>
+  <p>We'd keep the bill lines with names, numbers and addresses removed, and delete them after 3 months.</p>
+  <div class="row"><button type="button" aria-pressed="false" class="store">Yes, keep it</button><button type="button" aria-pressed="false" class="store">No thanks</button></div>
+  <h2>Want an insurance check later?</h2>
+  <button type="button" id="insBtn">I want the Insurance Check</button><p class="small">We won't ask for any contact details.</p>
+  <div id="notSaved" class="sysmsg hide" role="alert">You haven't saved your report. We can't send it to you later.
+    <div class="row"><button type="button" id="save3">Save or share</button><button type="button" id="finishAnyway">Finish without saving</button></div></div>
+  <p><button type="button" class="primary" id="finishBtn">Finish</button></p>
+</section>
+
+<section data-screen="done" class="hide">
+  <h1>Done</h1><p>Your documents and this check have been deleted. If you saved the report, it's on your device.</p>
+  <button type="button" data-go="m1">Start a new check</button>
+</section>
+
+<section data-screen="ended" class="hide">
+  <h1>Your session ended</h1><p>Your session ended and your documents were deleted. If you saved the report, it is still on your device.</p>
+  <button type="button" data-go="m1">Start a new check</button>
+</section>
+</main>
+
+<footer>Information only. Not legal, medical or financial advice.<br><a href="#" id="fNot">What this check is not</a> · <a href="#" id="fPriv">Privacy</a></footer>
+
+<dialog id="idleDlg" role="alertdialog" aria-labelledby="idleT" aria-describedby="idleD">
+  <h2 id="idleT">Are you still there?</h2><p id="idleD">In 5 minutes your session will end and your documents will be deleted.</p>
+  <button type="button" class="primary" id="keepGoing">Keep going</button></dialog>
+<dialog id="discardDlg" role="alertdialog" aria-labelledby="disT">
+  <h2 id="disT">Discard everything from this check?</h2><p id="disUnsaved" class="hide"><b>You haven't saved your report. Once you discard, it can't be retrieved.</b></p><p>Your documents, findings and choices will be deleted now. This can't be undone.</p>
+  <div class="row"><button type="button" id="disSave" class="hide">Save or share first</button><button type="button" id="disCancel">Cancel</button><button type="button" class="danger" id="disOk">Discard everything</button></div></dialog>
+<dialog id="fullDlg" class="full" aria-labelledby="fullT"><h1 id="fullT">Billing Desk Summary</h1><div id="fullBody"></div><button type="button" id="fullClose">Close</button></dialog>
+<dialog id="saveDlg" aria-labelledby="saveT"><h2 id="saveT">Prototype</h2><p>Here the phone's share menu (or a desktop download) would open with the PDF built on your device.</p><button type="button" id="saveOk" class="primary">OK</button></dialog>
+
+<div class="demo" aria-label="Prototype controls"><b>Demo:</b>
+  <button type="button" id="demoIdle">Idle warning</button><button type="button" id="demoEnd">Session ended</button><button type="button" id="demoSlow">15-min cap</button></div>
+
+<script>
+(function(){
+  const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+  let reportShown=false, saved=false, stepOf={m3:'upload',m4:'review',m5:'review',m6:'report',m6a:'report',m10:'report'};
+  function go(id){
+    $$('[data-screen]').forEach(s=>s.classList.toggle('hide',s.dataset.screen!==id));
+    $('main').classList.toggle('wide',id==='m6');
+    const st=stepOf[id]; $('#steps').classList.toggle('hide',!st);
+    $('#discardBtn').classList.toggle('hide',['m1','left','done','ended'].includes(id));
+    const order=['upload','review','report'];
+    $$('#steps li').forEach(li=>{const i=order.indexOf(li.dataset.s),c=order.indexOf(st);
+      li.removeAttribute('aria-current'); li.textContent=li.dataset.s[0].toUpperCase()+li.dataset.s.slice(1)+(i<c?' ✓':'');
+      if(i===c) li.setAttribute('aria-current','step');});
+    const h=document.querySelector('[data-screen="'+id+'"] h1'); if(h){h.setAttribute('tabindex','-1');h.focus();}
+    if(id==='m4') runReading();
+    if(id==='m6') reportShown=true;
+    const desk=matchMedia('(min-width:1024px)').matches; $('#saveBtn').textContent=desk?'Download':'Save or share'; $('#save2').textContent=desk?'Download your report':'Save or share your report'; $('#disSave').textContent=desk?'Download first':'Save or share first';
+    window.scrollTo(0,0);
+  }
+  document.addEventListener('click',e=>{const t=e.target.closest('[data-go]'); if(t) go(t.dataset.go);});
+  $('#moreBtn').onclick=function(){const o=this.getAttribute('aria-expanded')==='true';this.setAttribute('aria-expanded',!o);this.textContent=o?'More detail ▾':'Less detail ▴';$('#moreNotice').classList.toggle('hide',o);};
+
+  // M2
+  const who=[['mine','Mine'],['spouse',"My spouse's"],['parent',"My parent's"],['child',"My child's"],['family',"Another family member's"],['rep','I am an authorised representative'],['pro','I am a professional helping the family']];
+  $('#whoOpts').innerHTML=who.map(([v,l])=>'<label class="opt"><input type="radio" name="who" value="'+v+'"> '+l+'</label>').join('');
+  const rel={spouse:'spouse',parent:'parent',child:'child',family:'family member'};
+  function syncM2(){
+    const w=(document.querySelector('[name=who]:checked')||{}).value, m=(document.querySelector('[name=minor]:checked')||{}).value;
+    $('#fsMinor').classList.toggle('hide',!w||w==='mine');
+    $('#declGuardian').classList.toggle('hide',!(w&&w!=='mine'&&m==='yes'));
+    $('#fsAdult').classList.toggle('hide',!(w&&w!=='mine'&&m==='no'));
+    $('#passedLabel').textContent='My '+(rel[w]||'family member')+' has passed away';
+    $('#sorry').classList.toggle('hide',(document.querySelector('[name=adult]:checked')||{}).value!=='passed');
+  }
+  $('#consentForm').addEventListener('change',syncM2);
+  $('#consentForm').addEventListener('submit',e=>{
+    e.preventDefault(); const errs=[];
+    const show=(id,bad)=>{$(id).classList.toggle('hide',!bad); if(bad) errs.push(id);};
+    const w=(document.querySelector('[name=who]:checked')||{}).value, m=(document.querySelector('[name=minor]:checked')||{}).value;
+    show('#errWho',!w);
+    show('#errMinor',w&&w!=='mine'&&!m);
+    show('#errGuardian',w&&w!=='mine'&&m==='yes'&&!$('#cbGuardian').checked);
+    show('#errAdult',w&&w!=='mine'&&m==='no'&&!document.querySelector('[name=adult]:checked'));
+    show('#errAllowed',!$('#cbAllowed').checked);
+    show('#errConsent',!$('#cbConsent').checked);
+    if(errs.length){const f=$(errs[0]).closest('fieldset,div,label')||$(errs[0]); const inp=(f.querySelector&&f.querySelector('input'))||$(errs[0]).previousElementSibling.querySelector('input'); if(inp) inp.focus(); return;}
+    go('m3');
+  });
+
+  // M3
+  const lists={in:['Interim bill'],dis:['Hospital bill','Earlier interim bills, so we can spot amounts counted twice','Discharge summary — optional, lets us check more','Pharmacy bills — optional','Package letter or estimate'],paid:['Hospital bill','Payment receipts','Discharge summary — optional, lets us check more','Package letter or estimate']};
+  let files=[];
+  function renderM3(){
+    const w=(document.querySelector('[name=when]:checked')||{}).value;
+    $('#photoBtn').disabled=$('#filesBtn').disabled=!w; $('#whenReason').classList.toggle('hide',!!w);
+    $('#checklist').innerHTML=(w?lists[w]:['Answer "When are you checking?" to see what we need']).map((x,i)=>'<li>'+(i===0&&files.length?'✓ '+x+' — added':'○ '+x)+'</li>').join('');
+    $('#fileList').innerHTML=files.length?files.map(f=>'<li>'+f+'</li>').join(''):'<li class="small">Start with the hospital bill.</li>';
+    $('#checkBtn').disabled=!files.length;
+  }
+  $$('[name=when]').forEach(r=>r.onchange=renderM3);
+  function addSample(){files.push('✓ hospital-bill.pdf — 3 pages — Done'); files.push('! page-4.jpg — Page 4 of the pharmacy bill is blurry. Please retake it.'); renderM3();}
+  $('#filesBtn').onclick=addSample;
+  $('#photoBtn').onclick=()=>{ if(confirm('Before you take the photo:\n• Lay the page flat\n• Avoid glare from lights\n• Keep all four edges in the frame\n\nOpen camera (prototype adds a sample page)?')) addSample(); };
+  $('#checkBtn').onclick=()=>go('m4');
+  renderM3();
+
+  // M4
+  let timers=[];
+  function runReading(){
+    timers.forEach(clearTimeout); $('#firstLook').classList.add('hide'); $('#m4h').textContent='Reading your bill';
+    ['#ms1','#ms2','#ms3'].forEach((s,i)=>$(s).textContent='○ '+['Reading pages','Running checks','Report ready'][i]);
+    $('#eta').textContent='About 3 minutes left. You can stay on this page.';
+    timers.push(setTimeout(()=>{$('#ms1').textContent='✓ Reading pages — done';$('#ms2').textContent='↻ Running checks';},900));
+    timers.push(setTimeout(()=>{$('#ms2').textContent='✓ Running checks — done';$('#ms3').textContent='✓ Report ready';$('#m4h').textContent='First look';$('#eta').textContent='';$('#firstLook').classList.remove('hide');},1900));
+  }
+
+  // M6 findings
+  const F=[
+    {id:1,c:'l',name:'Room charged for an extra day',conf:'High',amt:'₹4,000',check:'LOS-01',what:'The daily charge for the hospital room.',noticed:'7 room days billed (Hospital bill, page 2, line 4). The discharge summary says admitted 03 Oct, discharged 09 Oct: 6 days.',why:'One more day than the stay appears to have been charged.',todo:'Ask the billing desk to check the number of room days. You can ask today or after paying.',refline:'room days are counted by the hospital\'s day rule (midday to midday).',attach:'the discharge summary.',bywhen:'before you pay if you can; otherwise within 7 days.',ref:'Page 2, line 4 — Room days: 7 billed, stay was 6 days.',fix:true},
+    {id:2,c:'l',name:'The same CT scan listed twice',conf:'High',amt:'₹2,600',check:'DUP-01',what:'A CT scan of the chest.',noticed:'The same scan, date and amount appear on page 6, lines 9 and 11.',why:'It appears to have been charged twice.',todo:'Ask the billing desk to remove the repeated line.',ref:'Page 6, lines 9 and 11 — CT scan listed twice.',fix:true},
+    {id:3,c:'l',name:'A drug charged above its MRP',conf:'High',amt:'₹820',check:'RX-01',what:'A pain-relief injection.',noticed:'Charged ₹1,640 for 2 vials; the printed MRP is ₹410 per vial (Pharmacy bill, page 8, line 2).',why:'The price appears to be above the printed MRP.',todo:'Ask the billing desk to charge at or below the MRP.',ref:'Page 8, line 2 — Price above the printed MRP.',fix:true},
+    {id:4,c:'w',name:'120 pairs of gloves for a 6-day stay',conf:'Medium',amt:'₹3,100',check:'CON-01',what:'Disposable examination gloves.',noticed:'120 pairs billed over 6 days (Hospital bill, page 5, line 7).',why:'This may be more than usual for this stay. It is worth asking how many were used.',todo:'Ask the billing desk to explain the quantity.',ref:'Page 5, line 7 — 120 pairs of gloves for a 6-day stay.',fix:false},
+    {id:6,c:'w',name:'The stent invoice is missing',conf:'High',amt:'₹0',route:'You can sort this out',check:'DOC-05',what:'The invoice or sticker for the stent used in the procedure.',noticed:'A stent is billed (Hospital bill, page 3, line 2), but no invoice or sticker was uploaded.',why:'Without it we cannot check the stent price against the government cap.',todo:'Ask the hospital pharmacy or billing desk for the implant invoice or sticker, then add it with "Add a document".',ref:'',fix:false},
+    {id:5,c:'e',name:'Doctor visit fees',conf:'High',amt:'₹18,000',check:'PF-01',what:'Daily visits by the treating doctor.',noticed:'One visit per day for 6 days, matching the stay.',why:'',todo:'',ref:'',fix:false}
+  ];
+  const LOW=[{name:'Nursing charge category',amt:'₹1,200'},{name:'A miscellaneous charge',amt:'₹950'}];
+  const label={l:'▲ Likely error',w:'? Worth asking',e:'✓ Explained'}, pill={l:'likely',w:'worth',e:'explained'};
+  const marks={}; let filter='all', current=1;
+  function routeOf(f){return f.route||(f.c==='e'?'Explained — no billing concern':'Ask the hospital');}
+  function renderList(){
+    $('#findingList').innerHTML=F.filter(f=>filter==='all'||f.c===filter).map(f=>
+      '<button type="button" class="fcard '+f.c+'" data-id="'+f.id+'"'+(f.id===current?' aria-current="true"':'')+' aria-label="'+label[f.c].slice(2)+', '+f.conf.toLowerCase()+' confidence: '+f.name+', '+f.amt+', '+routeOf(f)+'">'+
+      '<span class="pill '+pill[f.c]+'" aria-hidden="true">'+label[f.c]+' · '+f.conf+' confidence</span><br><b>'+f.name+'</b><br><span class="small">'+f.amt+' · '+routeOf(f)+(marks[f.id]?' · '+marks[f.id]:'')+'</span></button>').join('');
+  }
+  function renderDetail(){
+    const f=F.find(x=>x.id===current); if(!f) return;
+    let h='<h2 tabindex="-1" id="dh">'+f.name+'</h2><p><span class="pill '+pill[f.c]+'">'+label[f.c]+' · '+f.conf+' confidence</span></p><p>Who to ask: '+routeOf(f)+'</p>'+
+      '<h3>What it is</h3><p>'+f.what+'</p><h3>What we noticed</h3><p>'+f.noticed+'</p>'+(f.refline?'<p>Rule or reference: '+f.refline+'</p>':'');
+    if(f.c!=='e') h+='<h3>Why it may be wrong</h3><p>'+f.why+'</p><p>Amount potentially affected: '+f.amt+'</p><h3>What to do</h3><p>'+f.todo+'</p>'+(f.attach?'<p>What to attach: '+f.attach+'<br>By when: '+f.bywhen+'</p>':'')+
+      '<p><b>Will you raise this?</b></p><div class="row"><button type="button" class="mark" aria-pressed="'+(marks[f.id]==='Will ask')+'">Will ask</button><button type="button" class="mark" aria-pressed="'+(marks[f.id]==='Not pursuing')+'">Not pursuing</button></div>';
+    h+='<fieldset><legend>Was this helpful?</legend><label class="opt"><input type="radio" name="rate'+f.id+'"> Helpful</label><label class="opt"><input type="radio" name="rate'+f.id+'"> Not helpful</label><label class="opt"><input type="radio" name="rate'+f.id+'"> Wrong</label>'+
+      '<label>Reason (optional) <select><option>Choose…</option><option>The hospital already explained this</option><option>The amount is wrong</option><option>This isn\'t on my bill</option><option>I don\'t understand it</option></select></label></fieldset>'+
+      '<p class="small">Details: check '+f.check+' · rule v1.3 · reference data 2026-10</p>';
+    $('#detailPanel').innerHTML=h;
+    $$('#detailPanel .mark').forEach(b=>b.onclick=()=>{marks[f.id]=b.textContent;renderList();renderDetail();renderDesk();});
+  }
+  function renderDesk(){
+    const chosen=F.filter(f=>marks[f.id]==='Will ask'); const items=chosen.length?chosen:F.filter(f=>f.c==='l').slice(0,3);
+    const fix=items.filter(f=>f.fix), ask=items.filter(f=>!f.fix); let n=0;
+    let h='<p>City Care Hospital, Pune<br>Bill no. 4471, dated 09 Oct 2026</p>';
+    if(!chosen.length) h+='<p class="small">You can choose which points to raise: <a href="#findings">go to findings</a>.</p>';
+    if(fix.length) h+='<h3>Please correct</h3><ol>'+fix.map(f=>'<li>'+f.ref+' '+f.amt+'</li>').join('')+'</ol>';
+    if(ask.length) h+='<h3>Please explain</h3><ol start="'+(fix.length+1)+'">'+ask.map(f=>'<li>'+f.ref+'</li>').join('')+'</ol>';
+    h+='<p>Thank you for checking these.</p>'; $('#deskSummary').innerHTML=h; $('#fullBody').innerHTML=h;
+  }
+  $('#findingList').addEventListener('click',e=>{const b=e.target.closest('.fcard'); if(!b) return; current=+b.dataset.id; renderList(); renderDetail();
+    if(matchMedia('(max-width:1023px)').matches) $('#detailPanel').scrollIntoView(); $('#dh').focus();});
+  $$('[data-f]').forEach(b=>b.onclick=()=>{filter=b.dataset.f;$$('[data-f]').forEach(x=>x.setAttribute('aria-pressed',x===b));renderList();});
+  $('#lowBtn').onclick=function(){const o=this.getAttribute('aria-expanded')==='true';this.setAttribute('aria-expanded',!o);$('#lowList').classList.toggle('hide',o);
+    $('#lowList').innerHTML=LOW.map(l=>'<div class="fcard w"><span class="pill worth">? Worth asking · Low confidence</span><br><b>'+l.name+'</b><br><span class="small">'+l.amt+'</span></div>').join('');};
+  $('#linesBtn').onclick=()=>go('m6a');
+  $('#fixBtn').onclick=function(){const o=this.getAttribute('aria-expanded')==='true';this.setAttribute('aria-expanded',!o);$('#fixForm').classList.toggle('hide',o);if(!o)$('#fixQty').focus();};
+  $('#fixCancel').onclick=()=>{$('#fixForm').classList.add('hide');$('#fixBtn').setAttribute('aria-expanded','false');$('#fixBtn').focus();};
+  $('#fixForm').addEventListener('submit',e=>{e.preventDefault();const v=$('#fixQty').value.replace(/,/g,'');const bad=!/^\d+$/.test(v);$('#fixErr').classList.toggle('hide',!bad);if(bad){$('#fixQty').focus();return;}
+    go('m6');const n=$('#changeNotice');n.setAttribute('tabindex','-1');n.textContent='Updating your report…';n.classList.remove('hide');setTimeout(()=>{n.textContent='Your report was updated. 1 finding removed: Room charged for an extra day. Total potentially affected changed by ₹4,000. Your marks are kept.';n.focus();},900);if(saved===true)saved='stale';});
+  $('#addDocBtn').onclick=()=>{const n=$('#changeNotice'); n.textContent='Your report was updated. 1 finding added. Total potentially affected changed by ₹1,840. Your marks are kept.'; n.classList.remove('hide'); saved&&(saved='stale');};
+  const letters=['Request a revised bill or refund','Ask for the itemised bill','List of billing questions','Ask for the implant invoice and package inclusions','Grievance escalation letter','How to complain to the NPPA about a drug or device price'];
+  $('#letterList').innerHTML=letters.map((l,i)=>'<div class="card"><button type="button" class="quiet" aria-expanded="false" data-l="'+i+'">▸ '+l+'</button><div class="hide" id="lt'+i+'"><label class="small" for="ta'+i+'">'+l+'</label><textarea id="ta'+i+'">Dear Billing Manager,\n\nThank you for your help with bill no. 4471 dated 09 Oct 2026. Could you please check the following points…\n\nYours sincerely,</textarea><p class="small">Information only. Not legal advice.</p><div class="row"><button type="button" class="copy">Copy</button><button type="button">Download</button></div></div></div>').join('');
+  $('#letterList').addEventListener('click',e=>{const b=e.target.closest('[data-l]'); if(b){const d=$('#lt'+b.dataset.l),o=b.getAttribute('aria-expanded')==='true';b.setAttribute('aria-expanded',!o);d.classList.toggle('hide',o);}
+    if(e.target.classList.contains('copy')) e.target.textContent='Letter copied';});
+  function doSave(){ $('#saveDlg').showModal(); saved=true; }
+  $('#saveBtn').onclick=$('#save2').onclick=doSave; $('#save3').onclick=()=>{doSave();$('#notSaved').classList.add('hide');};
+  $('#saveOk').onclick=()=>$('#saveDlg').close();
+  $('#fullBtn').onclick=()=>{$('#fullDlg').showModal();$('#fullT').focus();}; $('#fullClose').onclick=()=>{$('#fullDlg').close();$('#fullBtn').focus();};
+  $$('.store').forEach(b=>b.onclick=()=>$$('.store').forEach(x=>x.setAttribute('aria-pressed',x===b)));
+  $('#insBtn').onclick=function(){this.textContent='Thanks — noted';this.disabled=true;};
+  $('#finishBtn').onclick=()=>{ if(saved!==true){$('#notSaved').classList.remove('hide');$('#save3').focus();} else go('done'); };
+  $('#finishAnyway').onclick=()=>go('done');
+  renderList(); renderDetail(); renderDesk();
+  $('#fNot').onclick=$('#fPriv').onclick=e=>{e.preventDefault();alert('Prototype: this opens the "What this check is not" or privacy text from the start screen in a dialog.');};
+
+  // dialogs + demo
+  $('#discardBtn').onclick=()=>{const u=reportShown&&saved!==true;$('#disUnsaved').classList.toggle('hide',!u);$('#disSave').classList.toggle('hide',!u);$('#discardDlg').showModal();(u?$('#disSave'):$('#disCancel')).focus();};
+  $('#disSave').onclick=()=>{$('#discardDlg').close();doSave();};
+  $('#disCancel').onclick=()=>{$('#discardDlg').close();$('#discardBtn').focus();};
+  $('#disOk').onclick=()=>{$('#discardDlg').close();files=[];renderM3();go('m1');};
+  $('#demoIdle').onclick=()=>{$('#idleDlg').showModal();$('#keepGoing').focus();};
+  $('#keepGoing').onclick=()=>$('#idleDlg').close();
+  $('#idleDlg').addEventListener('cancel',()=>{});
+  $('#demoEnd').onclick=()=>go('ended');
+  $('#demoSlow').onclick=()=>{go('m4');timers.forEach(clearTimeout);$('#firstLook').classList.add('hide');$('#mile').innerHTML='<div class="sysmsg"><p><b>This is taking too long.</b> Your documents are still here.</p><div class="row"><button type="button" id="retry">Try again</button></div></div>';
+    $('#retry').onclick=()=>{$('#mile').innerHTML='<p id="ms1"></p><p id="ms2"></p><p id="ms3"></p><p class="small" id="eta"></p>';runReading();};};
+})();
+</script>
+</body>
+</html>

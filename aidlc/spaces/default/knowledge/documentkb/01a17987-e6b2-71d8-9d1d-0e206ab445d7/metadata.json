@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "01a17987-e6b2-71d8-9d1d-0e206ab445d7",
+  "source": {
+    "kind": "managed",
+    "path": "documents/app-baseline.md"
+  },
+  "sha256": "599e40bf44fc08d1a320a20cd1230ad9040cb287757014bc7150b5e160addebe",
+  "bytes": 212039,
+  "indexed_at": "2026-10-26T18:45:11.971Z",
+  "extraction": {
+    "state": "extracted",
+    "extractor": {
+      "name": "builtin-text",
+      "version": "1"
+    },
+    "chars": 200000,
+    "truncated": true,
+    "source_revision": "599e40bf44fc08d1a320a20cd1230ad9040cb287757014bc7150b5e160addebe"
+  },
+  "summary": {
+    "state": "absent"
+  },
+  "content": "documentkb/01a17987-e6b2-71d8-9d1d-0e206ab445d7/content.md",
+  "content_sha256": "0df0166cbad0ff23335fd78360caa3a2d88304e96fae634d3408534f307824b2",
+  "content_trust": "untrusted",
+  "content_handling": "data-not-instructions"
+}
